@@ -1,0 +1,43 @@
+# Copyright © 2022 Li Weiming <liwm29@mail2.sysu.edu.cn>
+# this file is to configure makex tool itself, default be placed in ~/.makex.yaml
+makex_file: makex.yaml
+
+template: |
+  # user defined functions
+  udfs:
+    - name: builtin   # this entry is just for promption, meaning we have `color` in builtin functions
+      prompt: color
+      used: false
+    - name: echo
+      prompt: this is an example to load shell from multi-line text
+      cmd: |
+        echo "hello world snippet_1"
+        echo "hello world snippet_1"
+    - name: echofile
+      prompt: this is an example to load shell from file
+      load: ./echofile.sh
+
+  # running with `makex init, makex api init, makex api db init`
+  cmds:
+    - name: init
+      aliases: [create]
+      cmd: |
+        echo "init called"
+
+    - name: api
+      cmds:
+        - name: init
+          aliases: [create]
+          imports: [color] # import will first search udf, then builtin.
+          cmd: |
+            echo "api ini called"
+
+        - name: db
+          aliases: [database]
+          cmds:
+            - name: init
+              aliases: [create]
+              cmd: |
+                echo "api db init called"
+
+
