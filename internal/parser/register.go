@@ -49,9 +49,17 @@ var (
 )
 
 func (makexfile *Makexfile) FixUDF() {
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("failed to get cwd, err: %v", err)
+	}
+
 	for i := range makexfile.Udfs {
 		if makexfile.Udfs[i].Used == nil {
 			makexfile.Udfs[i].Used = &True
+		}
+		if makexfile.Udfs[i].Load != "" {
+			makexfile.Udfs[i].Load = filepath.Join(cwd, makexfile.Udfs[i].Load)
 		}
 	}
 }
@@ -134,7 +142,7 @@ func buildCobraCmd(userCmd Cmd, udfs []UDF) *cobra.Command {
 				case udf.Cmd != "":
 					safeWriteString(f, udf.Cmd+"\n")
 				case udf.Load != "":
-					source := fmt.Sprintf("source %s\n", udf.Load)
+					source := fmt.Sprintf(". %s\n", udf.Load)
 					safeWriteString(f, source)
 				default:
 					log.Fatal("udf '%s' in cmd '%s' must set 'cmd' or 'load'", udf.Name, userCmd.Name)

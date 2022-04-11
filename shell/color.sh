@@ -3,5 +3,5 @@ STR_RED(){
 }
 
 ECHO_RED(){
-  echo -e "\e[1;31m$1\e[0m"
+  echo "\e[1;31m$1\e[0m"
 }

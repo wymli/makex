@@ -1,31 +1,24 @@
 # user defined functions
 udfs:
-  - name: builtin # this entry is just for promption, meaning we have `color` in builtin functions
+  - name: builtin   # this entry is just for promption, meaning we have `color` in builtin functions
     prompt: color
     used: false
   - name: echo
+    prompt: this is an example to load shell from multi-line text
     cmd: |
       echo "hello world snippet_1"
       echo "hello world snippet_1"
-    load: ./echo.sh
-  - name: color
-    prompt: STR_RED, ECHO_RED, ...
-    cmd: |
-      STR_RED(){
-        return "\e[1;31m$1\e[0m"
-      }
-
-      ECHO_RED(){
-        echo -e "\e[1;31m$1\e[0m"
-      }
+  - name: echofile
+    prompt: this is an example to load shell from file
+    load: ./echofile.sh
 
 # running with `makex init, makex api init, makex api db init`
 cmds:
   - name: init
     aliases: [create]
-    imports: [color]
+    imports: [echofile]
     cmd: |
-      ECHO_RED "hello world"
+      echo "init called"
 
   - name: api
     cmds:
@@ -33,7 +26,7 @@ cmds:
         aliases: [create]
         imports: [color] # import will first search udf, then builtin.
         cmd: |
-          echo "api ini called"
+          ECHO_RED "api ini called"
 
       - name: db
         aliases: [database]

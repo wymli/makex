@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
@@ -80,5 +79,7 @@ func WriteMakexfile(c *Config, makexfile string) error {
 }
 
 func MoveShells() error {
-	return exec.Command("cp", "-r", "./shell", SHELL_DIR).Run()
+	// return exec.Command("cp", "-r", "./shell", SHELL_DIR).Run()
+	// todo: copy from embed.fs
+	return nil
 }

@@ -21,6 +21,7 @@ template: |
   cmds:
     - name: init
       aliases: [create]
+      imports: [echofile]
       cmd: |
         echo "init called"
 
@@ -30,7 +31,7 @@ template: |
           aliases: [create]
           imports: [color] # import will first search udf, then builtin.
           cmd: |
-            echo "api ini called"
+            ECHO_RED "api init called"
 
         - name: db
           aliases: [database]

@@ -6,9 +6,9 @@ import (
 )
 
 var TemplateCmd = &cobra.Command{
-	Use:   "makex",
-	Short: "makex is a cmd-line tool like make and task",
-	Long:  `makex is a cmd-line tool like make and task`,
+	Use:   "template",
+	Short: "use 'makex template init'",
+	Long:  `use 'makex template init'`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
