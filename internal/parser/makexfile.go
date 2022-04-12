@@ -1,8 +1,9 @@
 package parser
 
 type Makexfile struct {
-	Udfs []UDF `yaml:"udfs,omitempty"`
-	Cmds []Cmd `yaml:"cmds,omitempty"`
+	Interpreter string `yaml:"interpreter,omitempty"`
+	Udfs        []UDF  `yaml:"udfs,omitempty"`
+	Cmds        []Cmd  `yaml:"cmds,omitempty"`
 }
 
 type UDF struct {

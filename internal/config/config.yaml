@@ -3,6 +3,7 @@
 makex_file: makex.yaml
 
 template: |
+  interpreter: sh  # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html
   # user defined functions
   udfs:
     - name: builtin   # this entry is just for promption, meaning we have `color` in builtin functions

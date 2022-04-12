@@ -40,7 +40,7 @@ func ReadMakexfile(filename string) (*Makexfile, error) {
 }
 
 func (makexfile *Makexfile) RegisterCmds(rootCmd *cobra.Command) {
-	registerCobraCmds(rootCmd, makexfile.Cmds, makexfile.Udfs)
+	registerCobraCmds(rootCmd, makexfile)
 }
 
 var (
@@ -65,15 +65,15 @@ func (makexfile *Makexfile) FixUDF() {
 }
 
 // registerCobraCmds registers recursively
-func registerCobraCmds(parentCmd *cobra.Command, userCmds []Cmd, udfs []UDF) {
-	for _, userCmd := range userCmds {
-		cobraCmd := buildCobraCmd(userCmd, udfs)
+func registerCobraCmds(parentCmd *cobra.Command, makexfile *Makexfile) {
+	for _, userCmd := range makexfile.Cmds {
+		cobraCmd := buildCobraCmd(userCmd, makexfile)
 		parentCmd.AddCommand(cobraCmd)
-		registerCobraCmds(cobraCmd, userCmd.Cmds, udfs)
+		registerCobraCmds(cobraCmd, makexfile)
 	}
 }
 
-func buildCobraCmd(userCmd Cmd, udfs []UDF) *cobra.Command {
+func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 	return &cobra.Command{
 		Use:     userCmd.Name,
 		Aliases: userCmd.Aliases,
@@ -88,7 +88,7 @@ func buildCobraCmd(userCmd Cmd, udfs []UDF) *cobra.Command {
 
 			// write imports
 			udfMap := map[string]UDF{}
-			for _, udf := range udfs {
+			for _, udf := range makexfile.Udfs {
 				if *udf.Used {
 					udfMap[udf.Name] = udf
 				}
@@ -163,7 +163,8 @@ func buildCobraCmd(userCmd Cmd, udfs []UDF) *cobra.Command {
 			log.Debugf("[run] temp shell file: %s", f.Name())
 
 			// 2. exec shell
-			shell := exec.Command("sh", f.Name())
+			log.Debugf("[run] using shell: %s", makexfile.Interpreter)
+			shell := exec.Command(makexfile.Interpreter, f.Name())
 			shell.Stdout = os.Stdout
 			shell.Stderr = os.Stderr
 			shell.Stdin = os.Stdin
