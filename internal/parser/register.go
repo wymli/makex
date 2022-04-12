@@ -78,7 +78,12 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 		Use:     userCmd.Name,
 		Aliases: userCmd.Aliases,
 		Run: func(cmd *cobra.Command, args []string) {
-			// 1. write cmds to a shell file
+			if userCmd.Cmd == "" {
+				// if cmd is empty, we just print usage
+				_ = cmd.Usage()
+				return
+			}
+			// 1. create tmp shell file
 			f, err := os.CreateTemp(os.TempDir(), "makex-*.sh")
 			if err != nil {
 				log.Fatalf("failed to create tmp shell file, err: %v", err)
@@ -86,7 +91,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 
 			_ = f.Chmod(os.ModePerm)
 
-			// write imports
+			// 2. write imports udf
 			udfMap := map[string]UDF{}
 			for _, udf := range makexfile.Udfs {
 				if *udf.Used {
@@ -150,7 +155,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 				}
 			}
 
-			// write commands
+			// 3. write commands
 			safeWriteString(f, userCmd.Cmd)
 
 			_ = f.Sync()
@@ -163,7 +168,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 
 			log.Debugf("[run] temp shell file: %s", f.Name())
 
-			// 2. exec shell
+			// 4. exec shell file
 			log.Debugf("[run] using shell: %s", makexfile.Interpreter)
 			shell := exec.Command(makexfile.Interpreter, f.Name())
 			shell.Stdout = os.Stdout

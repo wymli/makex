@@ -16,8 +16,8 @@ import (
 var InitCmd = &cobra.Command{
 	Use:     "init",
 	Aliases: []string{"create"},
-	Short:   "init creates the '.makex' config dir in $HOME and 'makex.yaml' in $pwd",
-	Long:    `init creates the '.makex' config dir in $HOME and 'makex.yaml' in $pwd`,
+	Short:   "init  creates the '.makex' config dir in $HOME, and creates 'makex.yaml' in $pwd",
+	Long:    `init  creates the '.makex' config dir in $HOME, and creates 'makex.yaml' in $pwd`,
 	Run: func(cmd *cobra.Command, args []string) {
 		c, err := config.ReadMakexConfig()
 		if err != nil {

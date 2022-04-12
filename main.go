@@ -45,10 +45,8 @@ func init() {
 }
 
 func main() {
-	err := cmd.RootCmd.ParseFlags(os.Args[1:])
-	if err != nil {
-		log.Fatal(err)
-	}
+	// we don't process error here, just parse flags
+	_ = cmd.RootCmd.ParseFlags(os.Args[1:])
 
 	if makexfile, err := cmd.RootCmd.Flags().GetString("makexfile"); err == nil {
 		if makexfile != "" {
@@ -62,9 +60,10 @@ func main() {
 		}
 	}
 
-	// if it is registered args, exec it directly; otherwise we register user-defined args
+	// if it is registered args, exec it directly; otherwise we register user-defined args and re-exec again.
 	args := cmd.RootCmd.Flags().Args()
 	if _, _, err := cmd.RootCmd.Find(args); err == nil {
+		log.Debugf("[run] exec builtin cmd, args: %v", args)
 		cmd.Execute()
 		return
 	}
@@ -83,7 +82,7 @@ func main() {
 	// 3. register makexfile cmds to cobra cmds
 	log.Debugf("[register] registering commands to cobra")
 	makexfile.RegisterCmds(cmd.RootCmd)
-	
+
 	// 4. run cobra cmds executor
 	log.Debugf("[execute] executing cobra")
 	cmd.Execute()

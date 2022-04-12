@@ -1,0 +1,39 @@
+interpreter: sh  # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html
+
+# user defined functions
+udfs:
+  - name: builtin   # this entry is just for promption, meaning we have `color` in builtin functions
+    prompt: color
+    used: false
+  - name: echo
+    prompt: this is an example to load shell from multi-line text
+    cmd: |
+      echo "hello world snippet_1"
+      echo "hello world snippet_1"
+  - name: echofile
+    prompt: this is an example to load shell from file
+    load: ./echofile.sh
+
+# running with `makex init, makex api init, makex api db init`
+cmds:
+  - name: init
+    aliases: [create]
+    imports: [echofile]
+    cmd: |
+      echo "init called"
+
+  - name: api
+    cmds:
+      - name: init
+        aliases: [create]
+        imports: [color] # import will first search udf, then builtin.
+        cmd: |
+          ECHO_RED "api init called"
+
+      - name: db
+        aliases: [database]
+        cmds:
+          - name: init
+            aliases: [create]
+            cmd: |
+              echo "api db init called"

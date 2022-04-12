@@ -1,75 +1,139 @@
 # makex
 It's a cmd-line tool like `make` and `task`, supporting nested options and alias using `cobra`.
 
+## Usage
+you must run `makex template init` once to generate files in `$HOME/.makex/`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`
+
+For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex init` in the same dir of your `makex.yaml` to `exec init cmd`, or `makex help init (makex init -h, makex init --help)` to see help information(if init is an empty cmd, `makex init` will also print help info).
+
+> More cli usage, you can ask help for `cobra doc`.
+
+
+
 
 ## Shell
 we use [`sh`](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html), not `bash` or other shell.  
 > you can change `interpreter` in `makex.yaml` easily, but normally builtin shell function is coded using `sh`
 
-> a marked difference is: to show color in echo, `sh` is just `echo` without -e, while `bash` needs `echo -e`
+> a marked difference between different shell is that when showing color in echo, `sh` is just `echo` without -e, while `bash` needs `echo -e`
+
 
 ## Example
 
 A `makefile` in `makex`, is named `makex.yaml`. We should place it in the root dir of your project.  
-First, init.
-```
-cd 
-```
+
+[![demo](https://asciinema.org/a/335480.svg)](./assets/makex.cast)
 
 
-makexfile(makex.yaml)
-```yaml
-interpreter: sh
+``` yaml
+interpreter: sh  # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html
+
 # user defined functions
 udfs:
-  - name: builtin # udf name
-    prompt: color # prompt is just a kind of promption, meaning we have color file in built-in
-    used: false   # we won't load it as udf, but we do have it in built-in
-  - name: echo
-    prompt: this is an example to load shell from multi-line text
-    cmd: | # we will exec the cmd
-      echo "hello world snippet_1"
-      echo "hello world snippet_1"
-  - name: echofile
-    prompt: this is an example to load shell from file
-    load: ./echofile.sh # we will source the shell file. relative path with makex.yaml
+  - name: builtin   # this entry is just for promption, meaning we have `color` in builtin functions
+    prompt: color
+    used: false
+  - name: genpb
+    cmd: |
+      genpb(){
+        protoc -I $dir \
+        --go_out $out_dir --go_opt paths=source_relative \
+        --go-grpc_out $out_dir --go-grpc_opt paths=source_relative \
+        *.proto
+      }
 
-# running with `makex init, makex api init, makex api db init`
+# running with `makex init, makex tidy, makex userrpc build, makex userrpc build pb`
+# run `makex help` will give you a list
 cmds:
   - name: init
-    aliases: [create]
-    imports: [echofile]
     cmd: |
-      echo "init called"
-
-  - name: api
+      go mod init github.com/wymli/makex_example
+  - name: tidy
+    cmd: |
+      go mod tidy
+  - name: userrpc
+    aliases: []
+    imports: []
     cmds:
-      - name: init
-        aliases: [create]
-        imports: [color] # import will first search udf, then builtin.
+      - name: build
+        aliases: [gen]
         cmd: |
-          ECHO_RED "api init called"
-
-      - name: db
-        aliases: [database]
+          cd user_rpc
+          go build
+          # go build user_rpc/main.go -o bin/user_rpc
         cmds:
-          - name: init
-            aliases: [create]
+          - name: pb
+            imports: [genpb]
             cmd: |
-              echo "api db init called"
-
+              dir=.
+              out_dir=.
+              cd user_rpc/proto
+              genpb
+      - name: run
+        cmd: |
+          ./user_rpc/user_rpc
 ```
 
-```
-liwm29@wymli-NB1:~/test$ makex init
-echofile called
-init called
+## Exec
+We organize all shell commands into one big temp shell file.  
+We first process imports in `cmd`
+- if the udf of imports has `cmd` field, we will copy udf.cmd to the shell file
+- if the udf of imports has `load` field, we will use `. ${udf.load}` to `source`
 
-liwm29@wymli-NB1:~/test$ makex api init 
-api init called
+Then we copy `cmd.cmd` to shell file and run it using a shell interpreter(default `sh`).
+
+## Makexfile(makex.yaml) Schema
+```
+package parser
+
+type Makexfile struct {
+	Interpreter string `yaml:"interpreter,omitempty"`
+	Udfs        []UDF  `yaml:"udfs,omitempty"`
+	Cmds        []Cmd  `yaml:"cmds,omitempty"`
+}
+
+type UDF struct {
+	Name   string `yaml:"name,omitempty"`
+	Prompt string `yaml:"prompt,omitempty"`
+	Cmd    string `yaml:"cmd,omitempty"`
+	Load   string `yaml:"load,omitempty"`
+	Used   *bool  `yaml:"used,omitempty"`
+}
+
+type Cmd struct {
+	Name    string   `yaml:"name,omitempty"`
+	Aliases []string `yaml:"aliases,omitempty"`
+	Imports []string `yaml:"imports,omitempty"`
+	Cmd     string   `yaml:"cmd,omitempty"`
+	Cmds    []Cmd    `yaml:"cmds,omitempty"`
+}
 ```
 
-## Feature
-- local shell file load support
-- built-in shell functions support
+### UDF
+UDF can be seen as a kind of code snippets.
+
+- Name： used when imported in cmd (Cmd.Imports)
+- Prompt: useful information, like exported funtion name list
+- Cmd/Load: the payload, if cmd is not empty, we will exec cmd, otherwise will load shell file. cmd should be shell commands, and load should be shell file(relative to the makex.yaml)
+- Used: use or not
+
+### Cmd
+Usage is just like cobra.
+
+- Name: cmd name
+- Aliases: cmd alias
+- Imports: using udf
+- Cmd: command to execute
+- Cmds: sub-commands
+
+## Config
+you can configure you owm template on makexfile(makex.yaml), which is located at `$HOME/.makex/makex_config.yaml`.
+- do `cat ~/.makex/makex_config.yaml` for detail
+
+you can store your own commonly used udf(code snippets) as builtin functions at `$HOME/.makex/shell/`
+- do `ls ~/.makex/shell/` for detail
+- each udf is organized as a file
+  - filename withoud ext is its import name
+  - a file can contains as many functions as you want
+  - we will load the whole file before `exec cmd`
 
