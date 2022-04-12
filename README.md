@@ -12,8 +12,13 @@ For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex
 > More cli usage, you can ask help for `cobra doc`.
 
 ## Install
-```
+```sh
+# download release
 curl -fsSL https://raw.githubusercontent.com/wymli/makex/master/install.sh | INSTALL_TYPE=release sh -
+# download source code and build from scratch
+curl -fsSL https://raw.githubusercontent.com/wymli/makex/master/install.sh | INSTALL_TYPE=build sh -
+# use go install to download release to $GOPATH/bin, make sure you have set $GOPATH
+go install github.com/wymli/makex@latest
 ```
 
 ## Example
