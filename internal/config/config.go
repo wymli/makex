@@ -85,6 +85,10 @@ func MoveShells() error {
 		return fmt.Errorf("failed to read embedfs dir, err: %v", err)
 	}
 
+	if err := os.MkdirAll(SHELL_DIR, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create dir '%s', err: %v", SHELL_DIR, err)
+	}
+
 	for _, entry := range dirEntries {
 		if entry.Type().IsDir() {
 			continue

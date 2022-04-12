@@ -5,34 +5,23 @@ Copyright © 2022 Li Weiming <liwm29@mail2.sysu.edu.cn>
 package cmds
 
 import (
+	"os"
+
 	"github.com/wymli/makex/internal/config"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-// InitCmd represents the init command
-var InitCmd = &cobra.Command{
-	Use:     "init",
-	Aliases: []string{"create"},
-	Short:   "init creates the '.makex' config dir in $HOME and 'makex.yaml' in $pwd",
-	Long:    `init creates the '.makex' config dir in $HOME and 'makex.yaml' in $pwd`,
+var ClearCmd = &cobra.Command{
+	Use:     "clear",
+	Aliases: []string{"remove", "delete"},
+	Short:   "clear remove the '.makex' dir in $HOME, but remains 'makex.yaml' in $pwd",
+	Long:    `clear remove the '.makex' dir in $HOME, but remains 'makex.yaml' in $pwd`,
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := config.ReadMakexConfig()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if err = config.MoveShells(); err != nil {
-			log.Fatal(err)
-		}
-
-		makexfile := viper.GetString("makexfile")
-
-		err = config.WriteMakexfile(c, makexfile)
-		if err != nil {
-			log.Fatal(err)
+		log.Debugf("[remove] clearing config dir '%s'", config.CONFIG_DIR)
+		if err := os.RemoveAll(config.CONFIG_DIR); err != nil {
+			log.Fatalf("failed to remove makex config dir '%s', err: %v", config.CONFIG_DIR, err)
 		}
 	},
 }
