@@ -14,7 +14,7 @@ case $INSTALL_TYPE in
     ;;
   release)
     # download release
-    url="https://github.com/wymli/makex/releases/latest/download/makex"
+    url=https://github.com/wymli/makex/releases/latest/download/makex
     curl -fsSL $url > makex
     chmod +x makex
     sudo mv makex /usr/local/bin
