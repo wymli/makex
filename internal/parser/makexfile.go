@@ -17,6 +17,7 @@ type UDF struct {
 type Cmd struct {
 	Name    string   `yaml:"name,omitempty"`
 	Aliases []string `yaml:"aliases,omitempty"`
+	Usage   string   `yaml:"usage,omitempty"`
 	Imports []string `yaml:"imports,omitempty"`
 	Cmd     string   `yaml:"cmd,omitempty"`
 	Cmds    []Cmd    `yaml:"cmds,omitempty"`

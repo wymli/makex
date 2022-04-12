@@ -24,6 +24,7 @@ template: |
     - name: init
       aliases: [create]
       imports: [echofile]
+      usage: init will echo
       cmd: |
         echo "init called"
 

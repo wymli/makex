@@ -2,7 +2,6 @@ package config
 
 import (
 	_ "embed"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,8 +13,10 @@ import (
 )
 
 const (
-	CONFIG_NAME = "makex_config"
-	CONFIG_TYPE = "yaml"
+	CONFIG_NAME   = "makex_config"
+	CONFIG_TYPE   = "yaml"
+	MAKEXFILE_KEY = "makexfile"
+	MAKEXFILE     = "makex.yaml"
 )
 
 var (
@@ -34,22 +35,33 @@ type Config struct {
 	Template  string `yaml:"template,omitempty"`
 }
 
-func ReadMakexConfig() (*Config, error) {
-	// 0. create file path
-	if err := os.MkdirAll(CONFIG_DIR, os.ModePerm); err != nil {
-		return nil, err
+func InitMakexConfig() error {
+	// 1. check exists
+	stat, err := os.Stat(CONFIG_DIR)
+	if os.IsNotExist(err) || !stat.IsDir() {
+		log.Debugf("[init] %s not found, create default", CONFIG_DIR)
+		// 2. mkdir
+		if err := os.MkdirAll(CONFIG_DIR, os.ModePerm); err != nil {
+			return err
+		}
+
+		// 3. create config
+		if err := os.WriteFile(CONFIG_PATH, CofigTpl, os.ModePerm); err != nil {
+			return fmt.Errorf("failed to write config file to %s, err: %w", CONFIG_PATH, err)
+		}
+
+		// 4. Move shell
+		return MoveShells()
 	}
 
+	log.Debugf("[init] %s found, skip", CONFIG_DIR)
+	return nil
+}
+
+func ReadMakexConfig() (*Config, error) {
 	// 1. init config file
 	_, err := os.Stat(CONFIG_PATH)
-	switch {
-	case errors.Is(err, os.ErrNotExist):
-		if err := os.WriteFile(CONFIG_PATH, CofigTpl, os.ModePerm); err != nil {
-			return nil, fmt.Errorf("failed to write config file to %s, err: %w", CONFIG_PATH, err)
-		}
-	case errors.Is(err, nil):
-		// do nothing
-	default:
+	if err != nil {
 		return nil, fmt.Errorf("failed to stat config file in %s, err: %v", CONFIG_PATH, err)
 	}
 

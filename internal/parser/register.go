@@ -77,6 +77,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 	return &cobra.Command{
 		Use:     userCmd.Name,
 		Aliases: userCmd.Aliases,
+		Short:   userCmd.Usage,
 		Run: func(cmd *cobra.Command, args []string) {
 			if userCmd.Cmd == "" {
 				// if cmd is empty, we just print usage
@@ -180,12 +181,6 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 		},
 	}
 }
-
-// func WriteImports(w io.Writer, udf []UDF, imports []string) error {
-// 	for _, shell := range imports {
-// 	}
-// 	return nil
-// }
 
 func safeWriteString(f *os.File, str string) {
 	n, err := f.WriteString(str)

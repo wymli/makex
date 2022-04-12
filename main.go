@@ -61,12 +61,13 @@ func main() {
 	}
 
 	// if it is registered args, exec it directly; otherwise we register user-defined args and re-exec again.
-	args := cmd.RootCmd.Flags().Args()
-	if _, _, err := cmd.RootCmd.Find(args); err == nil {
-		log.Debugf("[run] exec builtin cmd, args: %v", args)
-		cmd.Execute()
-		return
-	}
+	// args := cmd.RootCmd.Flags().Args()
+	// // if we don't have args, we register user-defined args and then show help info
+	// if _, _, err := cmd.RootCmd.Find(args); err == nil && len(args) != 0 {
+	// 	log.Debugf("[run] exec builtin cmd, args: %v", args)
+	// 	cmd.Execute()
+	// 	return
+	// }
 
 	// 1. get makexfilename name
 	makexfilename := viper.GetString("makexfile")

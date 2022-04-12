@@ -4,11 +4,11 @@ It's a cmd-line tool like `make` and `task`, supporting nested options and alias
 ## Usage
 you must run `makex template init` once to generate files in `$HOME/.makex/`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`
 
-For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex init` in the same dir of your `makex.yaml` to `exec init cmd`, or `makex help init (makex init -h, makex init --help)` to see help information(if init is an empty cmd, `makex init` will also print help info).
+For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex init` in the same dir of your `makex.yaml` to execute init commands defined in `makex.yaml`. You can type `makex help init (makex init -h, makex init --help)` to see help information. If `init` is an empty cmd, `makex init` will also print help info.
+
+> Normally, you can just type `makex, makex help, makex -h, makex --help` to get help info.
 
 > More cli usage, you can ask help for `cobra doc`.
-
-
 
 
 ## Shell
@@ -53,6 +53,7 @@ cmds:
       go mod tidy
   - name: userrpc
     aliases: []
+    usage: userrpc is abould user center rpc
     imports: []
     cmds:
       - name: build
@@ -103,6 +104,7 @@ type UDF struct {
 type Cmd struct {
 	Name    string   `yaml:"name,omitempty"`
 	Aliases []string `yaml:"aliases,omitempty"`
+  Usage   string   `yaml:"usage,omitempty"`
 	Imports []string `yaml:"imports,omitempty"`
 	Cmd     string   `yaml:"cmd,omitempty"`
 	Cmds    []Cmd    `yaml:"cmds,omitempty"`
@@ -122,6 +124,7 @@ Usage is just like cobra.
 
 - Name: cmd name
 - Aliases: cmd alias
+- Usage: info showed in help usage
 - Imports: using udf
 - Cmd: command to execute
 - Cmds: sub-commands

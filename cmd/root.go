@@ -77,6 +77,9 @@ func init() {
 }
 
 func initConfig() {
+	if err := config.InitMakexConfig(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func initViper() {

@@ -5,6 +5,8 @@ Copyright © 2022 Li Weiming <liwm29@mail2.sysu.edu.cn>
 package cmds
 
 import (
+	"os"
+
 	"github.com/wymli/makex/internal/config"
 
 	log "github.com/sirupsen/logrus"
@@ -19,23 +21,32 @@ var InitCmd = &cobra.Command{
 	Short:   "init  creates the '.makex' config dir in $HOME, and creates 'makex.yaml' in $pwd",
 	Long:    `init  creates the '.makex' config dir in $HOME, and creates 'makex.yaml' in $pwd`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// if err := config.InitMakexConfig(); err != nil {
+		// 	log.Fatal(err)
+		// }
+
 		c, err := config.ReadMakexConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if err = config.MoveShells(); err != nil {
-			log.Fatal(err)
-		}
+		makexfile := viper.GetString(config.MAKEXFILE_KEY)
 
-		makexfile := viper.GetString("makexfile")
-
-		err = config.WriteMakexfile(c, makexfile)
-		if err != nil {
-			log.Fatal(err)
+		// makex.yaml init if not exists or force replace
+		_, err = os.Stat(makexfile)
+		if os.IsNotExist(err) || force {
+			err = config.WriteMakexfile(c, makexfile)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Info("makexfile detected, run `makex template init --force` to re-init")
+			log.Debug("skip makexfile, exists")
 		}
 	},
 }
+
+var force bool
 
 func init() {
 	// Here you will define your flags and configuration settings.
@@ -46,5 +57,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	InitCmd.Flags().BoolVar(&force, "force", false, "force to replace makexfile in $cwd")
 }
