@@ -1,5 +1,6 @@
 # run `curl -fsSL https://raw.githubusercontent.com/wymli/makex/master/install.sh | INSTALL_TYPE=release sh -` to install from remote.
 
+set -e
 
 case $INSTALL_TYPE in
   build)
@@ -13,8 +14,8 @@ case $INSTALL_TYPE in
     ;;
   release)
     # download release
-    url=https://github.com/wymli/makex/releases/latest/download/makex
-    curl -fsSL url > makex
+    url="https://github.com/wymli/makex/releases/latest/download/makex"
+    curl -fsSL $url > makex
     chmod +x makex
     sudo mv makex /usr/local/bin
     ;;

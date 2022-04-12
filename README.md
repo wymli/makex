@@ -11,6 +11,11 @@ For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex
 
 > More cli usage, you can ask help for `cobra doc`.
 
+## Install
+```
+curl -fsSL https://raw.githubusercontent.com/wymli/makex/master/install.sh | INSTALL_TYPE=release sh -
+```
+
 ## Example
 
 A `makefile` in `makex`, is named `makex.yaml`. We should place it in the root dir of your project.  
