@@ -3,20 +3,23 @@ It's a cmd-line tool like `make` and `task`, supporting nested options and alias
 
 
 ## Shell
-we use `sh`, not `bash` or other shell.
+we use [`sh`](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html), not `bash` or other shell.  
+> you can change `interpreter` in `makex.yaml` easily, but normally builtin shell function is coded using `sh`
+
+> a marked difference is: to show color in echo, `sh` is just `echo` without -e, while `bash` needs `echo -e`
 
 ## Example
 
 A `makefile` in `makex`, is named `makex.yaml`. We should place it in the root dir of your project.  
-
 First, init.
 ```
 cd 
 ```
 
 
-
+makexfile(makex.yaml)
 ```yaml
+interpreter: sh
 # user defined functions
 udfs:
   - name: builtin # udf name

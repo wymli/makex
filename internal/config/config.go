@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/wymli/makex/shell"
 	"gopkg.in/yaml.v2"
 )
 
@@ -79,7 +80,25 @@ func WriteMakexfile(c *Config, makexfile string) error {
 }
 
 func MoveShells() error {
-	// return exec.Command("cp", "-r", "./shell", SHELL_DIR).Run()
-	// todo: copy from embed.fs
+	dirEntries, err := shell.ShellFS.ReadDir(".")
+	if err != nil {
+		return fmt.Errorf("failed to read embedfs dir, err: %v", err)
+	}
+
+	for _, entry := range dirEntries {
+		if entry.Type().IsDir() {
+			continue
+		}
+
+		data, err := shell.ShellFS.ReadFile(entry.Name())
+		if err != nil {
+			return fmt.Errorf("failed to open embedfs file, err: %v", err)
+		}
+
+		err = os.WriteFile(filepath.Join(SHELL_DIR, entry.Name()), data, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("faild to write file to SHELLDIR '%s', err: %v", SHELL_DIR, err)
+		}
+	}
 	return nil
 }
