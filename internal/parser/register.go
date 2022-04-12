@@ -40,7 +40,7 @@ func ReadMakexfile(filename string) (*Makexfile, error) {
 }
 
 func (makexfile *Makexfile) RegisterCmds(rootCmd *cobra.Command) {
-	registerCobraCmds(rootCmd, makexfile)
+	registerCobraCmds(rootCmd, makexfile.Cmds, makexfile)
 }
 
 var (
@@ -65,11 +65,11 @@ func (makexfile *Makexfile) FixUDF() {
 }
 
 // registerCobraCmds registers recursively
-func registerCobraCmds(parentCmd *cobra.Command, makexfile *Makexfile) {
-	for _, userCmd := range makexfile.Cmds {
-		cobraCmd := buildCobraCmd(userCmd, makexfile)
+func registerCobraCmds(parentCmd *cobra.Command, cmds []Cmd, makexfile *Makexfile) {
+	for _, cmd := range cmds {
+		cobraCmd := buildCobraCmd(cmd, makexfile)
 		parentCmd.AddCommand(cobraCmd)
-		registerCobraCmds(cobraCmd, makexfile)
+		registerCobraCmds(cobraCmd, cmd.Cmds, makexfile)
 	}
 }
 
@@ -99,6 +99,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 			if err != nil {
 				log.Fatalf("failed to read dir files from embed shell fs, err: %v", err)
 			}
+
 			for _, shell := range shells {
 				name := strings.Split(shell.Name(), ".")[0]
 				builtinMap[name] = UDF{
@@ -137,7 +138,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 					}
 				}
 
-				// use cmd first if cmd is not empty
+				// use cmd first if cmd is not empty, then load
 				switch {
 				case udf.Cmd != "":
 					safeWriteString(f, udf.Cmd+"\n")
@@ -145,7 +146,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 					source := fmt.Sprintf(". %s\n", udf.Load)
 					safeWriteString(f, source)
 				default:
-					log.Fatal("udf '%s' in cmd '%s' must set 'cmd' or 'load'", udf.Name, userCmd.Name)
+					log.Fatal("udf '%s' import in cmd '%s', must set 'cmd' or 'load'", udf.Name, userCmd.Name)
 				}
 			}
 

@@ -69,20 +69,22 @@ func main() {
 		return
 	}
 
-	// 1. get makexfile name
-	makexfile := viper.GetString("makexfile")
+	// 1. get makexfilename name
+	makexfilename := viper.GetString("makexfile")
 
-	log.Debugf("use makexfile: %s", makexfile)
+	log.Debugf("use makexfile: %s", makexfilename)
 
 	// 2. read makexfile
-	userCmds, err := parser.ReadMakexfile(makexfile)
+	makexfile, err := parser.ReadMakexfile(makexfilename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 3. register makexfile cmds to cobra cmds
-	userCmds.RegisterCmds(cmd.RootCmd)
-
+	log.Debugf("[register] registering commands to cobra")
+	makexfile.RegisterCmds(cmd.RootCmd)
+	
 	// 4. run cobra cmds executor
+	log.Debugf("[execute] executing cobra")
 	cmd.Execute()
 }
