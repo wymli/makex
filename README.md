@@ -10,19 +10,11 @@ For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex
 
 > More cli usage, you can ask help for `cobra doc`.
 
-
-## Shell
-we use [`sh`](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html), not `bash` or other shell.  
-> you can change `interpreter` in `makex.yaml` easily, but normally builtin shell function is coded using `sh`
-
-> a marked difference between different shell is that when showing color in echo, `sh` is just `echo` without -e, while `bash` needs `echo -e`
-
-
 ## Example
 
 A `makefile` in `makex`, is named `makex.yaml`. We should place it in the root dir of your project.  
 
-[![demo](https://asciinema.org/a/335480.svg)](./assets/makex.cast)
+[![asciicast](https://asciinema.org/a/486509.svg)](https://asciinema.org/a/486509)
 
 
 ``` yaml
@@ -128,6 +120,15 @@ Usage is just like cobra.
 - Imports: using udf
 - Cmd: command to execute
 - Cmds: sub-commands
+
+
+
+## Shell
+we use [`sh`](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html), not `bash` or other shell.  
+> you can change `interpreter` in `makex.yaml` easily, but normally builtin shell function is coded using `sh`
+
+> a marked difference between different shell is that when showing color in echo, `sh` is just `echo` without -e, while `bash` needs `echo -e`
+
 
 ## Config
 you can configure you owm template on makexfile(makex.yaml), which is located at `$HOME/.makex/makex_config.yaml`.
