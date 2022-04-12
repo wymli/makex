@@ -31,6 +31,11 @@ var (
 	globFlags = GlobalFlags{}
 )
 
+var (
+	AppVersion   string
+	AppBuildTime string
+)
+
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "makex",
@@ -38,6 +43,7 @@ var RootCmd = &cobra.Command{
 	Long:  `makex is a cmd-line tool like make and task`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
+	Version: AppVersion,
 	Run: func(cmd *cobra.Command, args []string) {
 		if rootFlags.version {
 			printVersion()
