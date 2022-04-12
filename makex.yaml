@@ -26,3 +26,7 @@ cmds:
     cmd: |
       # use ./makex install, not makex install
       sudo cp ./makex /usr/local/bin
+  - name: push
+    usage: git push --tags
+    cmd: |
+      git push --tags
