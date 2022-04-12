@@ -11,9 +11,17 @@ cmds:
         usage: upload asciinema to asciinema.org
         cmd: |
           curl -v -u $USER:$(cat ~/.config/asciinema/install-id) https://asciinema.org/api/asciicasts -F asciicast=@$pwd/makex.cast
-  - build:
+  - name: build
     usage: build go exe
     cmd: |
       VERSION=`git describe --tags`
       BUILD=`date +%FT%T%z`
-      CGO_ENABLED=0 go build -a -ldflags "-X cmd.AppVersion=$VERSION cmd.AppBuildTime=$BUILD"
+      go build -ldflags "-X 'github.com/wymli/makex/cmd.AppVersion=$VERSION' -X 'github.com/wymli/makex/cmd.AppBuildTime=$BUILD'"
+  - name: version
+    usage: show version
+    cmd: |
+      ./makex --version
+  - name: install
+    usage: install ./makex to $PATH
+    cmd: |
+      sudo cp ./makex /usr/local/bin

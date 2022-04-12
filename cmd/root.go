@@ -5,7 +5,6 @@ Copyright © 2022 Li Weiming <liwm29@mail2.sysu.edu.cn>
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/wymli/makex/cmd/template"
@@ -43,13 +42,9 @@ var RootCmd = &cobra.Command{
 	Long:  `makex is a cmd-line tool like make and task`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Version: AppVersion,
+	Version: AppVersion + "\n" + AppBuildTime,
 	Run: func(cmd *cobra.Command, args []string) {
-		if rootFlags.version {
-			printVersion()
-		} else {
-			cmd.Usage()
-		}
+		cmd.Usage()
 	},
 }
 
@@ -103,8 +98,4 @@ func initViper() {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Debugf("failed to read config file %s, call `makex template init` first, err: %v", config.CONFIG_PATH, err)
 	}
-}
-
-func printVersion() {
-	fmt.Println("version will be set using build-flags, and printed here")
 }
