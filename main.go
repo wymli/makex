@@ -60,6 +60,15 @@ func main() {
 		}
 	}
 
+	if version, err := cmd.RootCmd.Flags().GetBool("version"); err == nil {
+		if version {
+			// skip register
+			log.Debug("skip register user cmds, only show version")
+			cmd.Execute()
+			return
+		}
+	}
+
 	// if it is registered args, exec it directly; otherwise we register user-defined args and re-exec again.
 	// args := cmd.RootCmd.Flags().Args()
 	// // if we don't have args, we register user-defined args and then show help info

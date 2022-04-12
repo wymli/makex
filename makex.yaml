@@ -20,8 +20,9 @@ cmds:
   - name: version
     usage: show version
     cmd: |
-      ./makex --version
+      makex --version
   - name: install
     usage: install ./makex to $PATH
     cmd: |
+      # use ./makex install, not makex install
       sudo cp ./makex /usr/local/bin
