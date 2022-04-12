@@ -1,8 +1,9 @@
 # makex
-It's a cmd-line tool like `make` and `task`, supporting nested options and alias using `cobra`.
+It's a cmd-line tool like `make` and `task`, supporting nested options and alias using `cobra`.  
+With `makex`, we can easily execute nested commands, like `makex rpc build`, `makex rpc build pb`
 
 ## Usage
-you must run `makex template init` once to generate files in `$HOME/.makex/`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`
+you can run `makex template init` to generate makexfile(`makex.yaml`) in `$pwd`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`
 
 For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex init` in the same dir of your `makex.yaml` to execute init commands defined in `makex.yaml`. You can type `makex help init (makex init -h, makex init --help)` to see help information. If `init` is an empty cmd, `makex init` will also print help info.
 
@@ -141,3 +142,6 @@ you can store your own commonly used udf(code snippets) as builtin functions at 
   - a file can contains as many functions as you want
   - we will load the whole file before `exec cmd`
 
+## Debug
+
+you can run with `-v` to show debug logs. The contents of the assembled shell file will also be displayed.
