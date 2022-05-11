@@ -19,9 +19,9 @@ var ClearCmd = &cobra.Command{
 	Short:   "clear removes the '.makex' config dir in $HOME, but remains 'makex.yaml' in $pwd",
 	Long:    `clear removes the '.makex' config dir in $HOME, but remains 'makex.yaml' in $pwd`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugf("[remove] clearing config dir '%s'", config.CONFIG_DIR)
-		if err := os.RemoveAll(config.CONFIG_DIR); err != nil {
-			log.Fatalf("failed to remove makex config dir '%s', err: %v", config.CONFIG_DIR, err)
+		log.Debugf("[remove] clearing config dir '%s'", config.CONFIG_DIR_PATH)
+		if err := os.RemoveAll(config.CONFIG_DIR_PATH); err != nil {
+			log.Fatalf("failed to remove makex config dir '%s', err: %v", config.CONFIG_DIR_PATH, err)
 		}
 	},
 }

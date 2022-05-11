@@ -6,53 +6,19 @@ package main
 
 import (
 	"os"
-	"path/filepath"
-	"runtime"
-	"strconv"
-	"strings"
 
 	"github.com/wymli/makex/cmd"
+	"github.com/wymli/makex/cmd/template"
+	"github.com/wymli/makex/code"
+	"github.com/wymli/makex/internal/config"
 	"github.com/wymli/makex/internal/parser"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
-
-func init() {
-	log.SetLevel(log.InfoLevel)
-	log.SetOutput(os.Stdout)
-	log.SetReportCaller(true)
-
-	formatter := log.TextFormatter{
-		EnvironmentOverrideColors: true,
-		DisableTimestamp:          false,
-		FullTimestamp:             true,
-		DisableLevelTruncation:    true,
-		QuoteEmptyFields:          true,
-		CallerPrettyfier: func(frame *runtime.Frame) (string, string) {
-			seps := strings.Split(frame.File, string(filepath.Separator))
-			for i := len(seps); i < 3; i++ {
-				seps = append(seps, "")
-			}
-
-			seps = seps[len(seps)-3:]
-
-			fileName := filepath.Join(seps...) + ":" + strconv.Itoa(frame.Line)
-			return "", fileName
-		},
-	}
-	log.SetFormatter(&formatter)
-}
 
 func main() {
 	// we don't process error here, just parse flags
 	_ = cmd.RootCmd.ParseFlags(os.Args[1:])
-
-	if makexfile, err := cmd.RootCmd.Flags().GetString("makexfile"); err == nil {
-		if makexfile != "" {
-			viper.Set("makexfile", makexfile)
-		}
-	}
 
 	if v, err := cmd.RootCmd.Flags().GetBool("verbose"); err == nil {
 		if v {
@@ -69,19 +35,14 @@ func main() {
 		}
 	}
 
-	// if it is registered args, exec it directly; otherwise we register user-defined args and re-exec again.
-	// args := cmd.RootCmd.Flags().Args()
-	// // if we don't have args, we register user-defined args and then show help info
-	// if _, _, err := cmd.RootCmd.Find(args); err == nil && len(args) != 0 {
-	// 	log.Debugf("[run] exec builtin cmd, args: %v", args)
-	// 	cmd.Execute()
-	// 	return
-	// }
+	c, err := config.ReadMakexConfig()
+	if err != nil {
+		log.Fatalf("failed to read makex config, err:%v", err)
+	}
 
-	// 1. get makexfilename name
-	makexfilename := viper.GetString("makexfile")
+	makexfilename := c.Makexfile
 
-	log.Debugf("use makexfile: %s", makexfilename)
+	log.Debugf("[config] use makexfile: %s", makexfilename)
 
 	// 2. read makexfile
 	makexfile, err := parser.ReadMakexfile(makexfilename)
@@ -89,11 +50,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// 3. register makexfile cmds to cobra cmds
-	log.Debugf("[register] registering commands to cobra")
+	// 3. register internal code snippet template init
+	log.Debugf("[register] registering internal code commands to cobra")
+	code.RegisterCmds(template.ExportInitCmd())
+
+	// 4. register makexfile cmds to cobra cmds
+	log.Debugf("[register] registering makexfile commands to cobra")
 	makexfile.RegisterCmds(cmd.RootCmd)
 
-	// 4. run cobra cmds executor
+	// 5. run cobra cmds executor
 	log.Debugf("[execute] executing cobra")
 	cmd.Execute()
 }

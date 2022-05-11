@@ -1,6 +1,6 @@
 # Copyright © 2022 Li Weiming <liwm29@mail2.sysu.edu.cn>
 # this file is to configure makex tool itself, default be placed in ~/.makex/makex_config.yaml
-makex_file: makex.yaml
+makexfile: makex.yaml
 
 template: |
   interpreter: sh  # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html

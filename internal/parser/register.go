@@ -12,8 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
+	"github.com/wymli/makex/code"
 	"github.com/wymli/makex/internal/config"
-	"github.com/wymli/makex/shell"
 )
 
 func ReadMakexfile(filename string) (*Makexfile, error) {
@@ -101,7 +101,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 			}
 
 			builtinMap := map[string]UDF{}
-			shells, err := shell.ShellFS.ReadDir(".")
+			shells, err := code.CodeFS.ReadDir(".")
 			if err != nil {
 				log.Fatalf("failed to read dir files from embed shell fs, err: %v", err)
 			}
@@ -110,7 +110,7 @@ func buildCobraCmd(userCmd Cmd, makexfile *Makexfile) *cobra.Command {
 				name := strings.Split(shell.Name(), ".")[0]
 				builtinMap[name] = UDF{
 					Name: name,
-					Load: filepath.Join(config.SHELL_DIR, shell.Name()),
+					Load: filepath.Join(config.SHELL_DIR_PATH, shell.Name()),
 					Used: &True,
 				}
 			}
