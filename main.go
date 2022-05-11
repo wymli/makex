@@ -52,7 +52,7 @@ func main() {
 
 	// 3. register internal code snippet template init
 	log.Debugf("[register] registering internal code commands to cobra")
-	code.RegisterCmds(template.ExportInitCmd())
+	code.RegisterCmds(config.CODE_DIR_PATH, template.ExportInitCmd())
 
 	// 4. register makexfile cmds to cobra cmds
 	log.Debugf("[register] registering makexfile commands to cobra")

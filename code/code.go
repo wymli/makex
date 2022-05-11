@@ -2,6 +2,7 @@ package code
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -15,21 +16,25 @@ import (
 var CodeFS embed.FS
 
 // RegisterCmds registers recursively
-func RegisterCmds(parentCmd *cobra.Command) {
+func RegisterCmds(dir string, parentCmd *cobra.Command) {
 	cmdMap := map[string]*cobra.Command{
 		"code": parentCmd,
 	}
 
-	fs.WalkDir(CodeFS, ".", func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(os.DirFS(dir), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
+
+		path = filepath.Join("code", path)
+
 		if d.IsDir() {
+			log.Debug("path=", path, " d.name=", d.Name())
 			return nil
 		}
 
 		names := strings.Split(path, string(os.PathSeparator))
-		log.Debug("path=", path, "d.name=", d.Name(), "names=", names)
+		log.Debug("path=", path, " d.name=", d.Name(), " names=", names)
 
 		for i, name := range names[:len(names)-1] {
 			if _, ok := cmdMap[name]; !ok {
@@ -68,4 +73,34 @@ func buildCobraCmd(path, name string) *cobra.Command {
 			}
 		},
 	}
+}
+
+// copy embed.fs to os.fs
+func Replay(dir string) error {
+	return fs.WalkDir(CodeFS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		log.Debug("path=", path, " d.name=", d.Name())
+
+		if d.IsDir() {
+			_ = os.Mkdir(d.Name(), os.ModePerm)
+			return nil
+		}
+
+		_ = os.MkdirAll(filepath.Join(dir, filepath.Dir(path)), os.ModePerm)
+
+		data, err := CodeFS.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to open embedfs file, err: %v", err)
+		}
+
+		err = os.WriteFile(filepath.Join(dir, path), data, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("faild to write file to CODE_DIR '%s', err: %v", dir, err)
+		}
+
+		return nil
+	})
 }
