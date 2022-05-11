@@ -1,17 +1,29 @@
 # makex
 It's a cmd-line tool like `make` and `task`, supporting nested options and alias using `cobra`.  
-With `makex`, we can easily execute nested commands, like `makex rpc build`, `makex rpc build pb`
+With `makex`, we can easily execute nested commands, like `makex cmd1`, `makex cmd1 cmd2`, which you defined yourself.
 
 ## Usage
-you can run `makex template init` to generate makexfile(`makex.yaml`) in `$pwd`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`
+you can run `makex template init` to generate makexfile(`makex.yaml`) in `$pwd`, then you can edit your own makex.yaml and run with `makex`, just like `make in cobra style`  
 
-For Example, if you have `init` cmd in your own `makex.yaml`, you can run `makex init` in the same dir of your `makex.yaml` to execute init commands defined in `makex.yaml`. You can type `makex help init (makex init -h, makex init --help)` to see help information. If `init` is an empty cmd, `makex init` will also print help info.
+For Example, given a following simple makexfile(makex.yaml)
+```yaml
+cmds:
+    - name: init
+      cmd: echo "hello world: makex init"
+      cmds:
+          - name: pb
+            cmd: echo "hello world: makex init pb"
+```
+
+you can run `makex init` in the same dir of your `makex.yaml` to execute `init` commands, which is `echo "hello world: makex init"`. You can also run `makex init pb` to execute `echo "hello world: makex init pb"`.   
+To get help info, you can run `makex help init (makex init -h, makex init --help)` to see help information. If `init` is an empty cmd, `makex init` will also print help info.
 
 > Normally, you can just type `makex, makex help, makex -h, makex --help` to get help info.
 
 > More cli usage, you can ask help for `cobra doc`.
 
 ## Install
+You can choose one of the three intsall methods.
 ```sh
 # download release
 curl -fsSL https://raw.githubusercontent.com/wymli/makex/master/install.sh | INSTALL_TYPE=release sh -
@@ -28,6 +40,7 @@ A `makefile` in `makex`, is named `makex.yaml`. We should place it in the root d
 [![asciicast](https://asciinema.org/a/486509.svg)](https://asciinema.org/a/486509)
 
 
+This is the makexfile used in the video.
 ``` yaml
 interpreter: sh  # see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/contents.html
 
@@ -78,13 +91,14 @@ cmds:
           ./user_rpc/user_rpc
 ```
 
-## Exec
+## Execute logic
 We organize all shell commands into one big temp shell file.  
 We first process imports in `cmd`
-- if the udf of imports has `cmd` field, we will copy udf.cmd to the shell file
-- if the udf of imports has `load` field, we will use `. ${udf.load}` to `source`
+- if the udf of imports has `cmd` field, we will copy `udf.cmd` to the shell file
+- if the udf of imports has `load` field, we will use `. ${udf.load}` to load file.
 
 Then we copy `cmd.cmd` to shell file and run it using a shell interpreter(default `sh`).
+> You can see the whold tmp shell file if you running `makex` with `-v` flag
 
 ## Makexfile(makex.yaml) Schema
 ```
@@ -107,7 +121,7 @@ type UDF struct {
 type Cmd struct {
 	Name    string   `yaml:"name,omitempty"`
 	Aliases []string `yaml:"aliases,omitempty"`
-  Usage   string   `yaml:"usage,omitempty"`
+	Usage   string   `yaml:"usage,omitempty"`
 	Imports []string `yaml:"imports,omitempty"`
 	Cmd     string   `yaml:"cmd,omitempty"`
 	Cmds    []Cmd    `yaml:"cmds,omitempty"`
